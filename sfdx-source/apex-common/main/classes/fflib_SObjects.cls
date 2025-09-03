@@ -22,55 +22,44 @@
  *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-**/
-public virtual class fflib_SObjects
-		extends fflib_Objects
-		implements fflib_ISObjects
-{
-
-	public Schema.DescribeSObjectResult SObjectDescribe {get; private set;}
+ **/
+public virtual class fflib_SObjects extends fflib_Objects implements fflib_ISObjects {
+	public Schema.DescribeSObjectResult SObjectDescribe { get; private set; }
 
 	/**
 	 * Useful during unit testing to assert at a more granular and robust level for errors raised during the various trigger events
 	 **/
-	public static ErrorFactory Errors  {get; private set;}
+	public static ErrorFactory Errors { get; private set; }
 
-	static
-	{
+	static {
 		Errors = new ErrorFactory();
 	}
 
 	/**
 	 * Class constructor
 	 */
-	public fflib_SObjects(List<SObject> records)
-	{
+	public fflib_SObjects(List<SObject> records) {
 		super(records);
 	}
 
-	public fflib_SObjects(List<SObject> records, Schema.SObjectType sObjectType)
-	{
+	public fflib_SObjects(List<SObject> records, Schema.SObjectType sObjectType) {
 		super(records);
 		SObjectDescribe = sObjectType.getDescribe();
 	}
 
-	public virtual List<SObject> getRecords()
-	{
+	public virtual List<SObject> getRecords() {
 		return (List<SObject>) getObjects();
 	}
 
-	public virtual Set<Id> getRecordIds()
-	{
+	public virtual Set<Id> getRecordIds() {
 		return new Map<Id, SObject>(getRecords()).keySet();
 	}
 
-	public virtual override Object getType()
-	{
+	public virtual override Object getType() {
 		return getSObjectType();
 	}
 
-	public virtual SObjectType getSObjectType()
-	{
+	public virtual SObjectType getSObjectType() {
 		return SObjectDescribe.getSObjectType();
 	}
 
@@ -79,10 +68,8 @@ public virtual class fflib_SObjects
 	 *
 	 * @param message The error message to add to each record
 	 */
-	protected void addError(String message)
-	{
-		for (SObject record : getRecords())
-		{
+	protected void addError(String message) {
+		for (SObject record : getRecords()) {
 			record.addError(error(message, record));
 		}
 	}
@@ -94,10 +81,8 @@ public virtual class fflib_SObjects
 	 * @param message The error message to add to the given field on each record
 	 */
 	@TestVisible
-	protected virtual void addError(Schema.SObjectField field, String message)
-	{
-		for (SObject record : getRecords())
-		{
+	protected virtual void addError(Schema.SObjectField field, String message) {
+		for (SObject record : getRecords()) {
 			record.addError(field, error(message, record, field));
 		}
 	}
@@ -107,8 +92,7 @@ public virtual class fflib_SObjects
 	 * @param field The field to nullify
 	 */
 	@TestVisible
-	protected virtual void clearField(Schema.SObjectField field)
-	{
+	protected virtual void clearField(Schema.SObjectField field) {
 		clearFields(new Set<Schema.SObjectField>{ field });
 	}
 
@@ -117,12 +101,9 @@ public virtual class fflib_SObjects
 	 * @param fields The fields to nullify
 	 */
 	@TestVisible
-	protected virtual void clearFields(Set<Schema.SObjectField> fields)
-	{
-		for (SObject record : getRecords())
-		{
-			for (SObjectField field : fields)
-			{
+	protected virtual void clearFields(Set<Schema.SObjectField> fields) {
+		for (SObject record : getRecords()) {
+			for (SObjectField field : fields) {
 				record.put(field, null);
 			}
 		}
@@ -136,8 +117,7 @@ public virtual class fflib_SObjects
 	 *
 	 * @return Returns the Error message
 	 **/
-	protected virtual String error(String message, SObject record)
-	{
+	protected virtual String error(String message, SObject record) {
 		return Errors.error(this, message, record);
 	}
 
@@ -150,8 +130,7 @@ public virtual class fflib_SObjects
 	 *
 	 * @return Returns the Error message
 	 **/
-	protected virtual String error(String message, SObject record, Schema.SObjectField field)
-	{
+	protected virtual String error(String message, SObject record, Schema.SObjectField field) {
 		return fflib_SObjects.Errors.error(this, message, record, field);
 	}
 
@@ -161,11 +140,9 @@ public virtual class fflib_SObjects
 	 * @return Return a set with all the Id values of the given field
 	 */
 	@TestVisible
-	protected Set<Id> getIdFieldValues(Schema.SObjectField field)
-	{
+	protected Set<Id> getIdFieldValues(Schema.SObjectField field) {
 		Set<Id> result = new Set<Id>();
-		for (SObject record : getRecords())
-		{
+		for (SObject record : getRecords()) {
 			result.add((Id) record.get(field));
 		}
 		return result;
@@ -177,11 +154,9 @@ public virtual class fflib_SObjects
 	 * @return Return a set with all the String values of the given field
 	 */
 	@TestVisible
-	protected Set<String> getStringFieldValues(Schema.SObjectField field)
-	{
+	protected Set<String> getStringFieldValues(Schema.SObjectField field) {
 		Set<String> result = new Set<String>();
-		for (SObject record : getRecords())
-		{
+		for (SObject record : getRecords()) {
 			result.add((String) record.get(field));
 		}
 		return result;
@@ -193,11 +168,9 @@ public virtual class fflib_SObjects
 	 * @return Return a set with all the values of the given field
 	 */
 	@TestVisible
-	protected virtual Set<Object> getFieldValues(Schema.SObjectField field)
-	{
+	protected virtual Set<Object> getFieldValues(Schema.SObjectField field) {
 		Set<Object> result = new Set<Object>();
-		for (SObject record : getRecords())
-		{
+		for (SObject record : getRecords()) {
 			result.add(record.get(field));
 		}
 		return result;
@@ -209,9 +182,8 @@ public virtual class fflib_SObjects
 	 *
 	 * @return A list with only the SObjects where the given field has the provided value
 	 */
-	protected virtual List<SObject> getRecordsByFieldValue(Schema.SObjectField field, Object value)
-	{
-		return getRecordsByFieldValues(field, new Set<Object>{value});
+	protected virtual List<SObject> getRecordsByFieldValue(Schema.SObjectField field, Object value) {
+		return getRecordsByFieldValues(field, new Set<Object>{ value });
 	}
 
 	/**
@@ -220,13 +192,10 @@ public virtual class fflib_SObjects
 	 *
 	 * @return A list with only the SObjects where the given field value is part of the provided values
 	 */
-	protected virtual List<SObject> getRecordsByFieldValues(Schema.SObjectField field, Set<Object> values)
-	{
+	protected virtual List<SObject> getRecordsByFieldValues(Schema.SObjectField field, Set<Object> values) {
 		List<SObject> result = new List<SObject>();
-		for (SObject record : getRecords())
-		{
-			if (values?.contains(record.get(field)))
-			{
+		for (SObject record : getRecords()) {
+			if (values?.contains(record.get(field))) {
 				result.add(record);
 			}
 		}
@@ -238,11 +207,8 @@ public virtual class fflib_SObjects
 	 *
 	 * @return A list with only the SObjects where the given field value is either null or '')
 	 */
-	protected virtual List<SObject> getRecordsWithBlankFieldValues(Schema.SObjectField field)
-	{
-		return getRecordsWithBlankFieldValues(
-				new Set<Schema.SObjectField> {field}
-		);
+	protected virtual List<SObject> getRecordsWithBlankFieldValues(Schema.SObjectField field) {
+		return getRecordsWithBlankFieldValues(new Set<Schema.SObjectField>{ field });
 	}
 
 	/**
@@ -250,14 +216,12 @@ public virtual class fflib_SObjects
 	 *
 	 * @return A list with only the SObjects where the at least one given field value is either null or '')
 	 */
-	protected virtual List<SObject> getRecordsWithBlankFieldValues(Set<Schema.SObjectField> fields)
-	{
+	protected virtual List<SObject> getRecordsWithBlankFieldValues(Set<Schema.SObjectField> fields) {
 		List<SObject> result = new List<SObject>();
-		for (SObject record : getRecords())
-		{
-			for (SObjectField field : fields)
-			{
-				if (String.isNotBlank((String) record.get(field))) continue;
+		for (SObject record : getRecords()) {
+			for (SObjectField field : fields) {
+				if (String.isNotBlank((String) record.get(field)))
+					continue;
 
 				result.add(record);
 				break;
@@ -271,21 +235,18 @@ public virtual class fflib_SObjects
 	 *
 	 * @return A list with only the SObjects where all given field values are either null or ''
 	 */
-	protected virtual List<SObject> getRecordsWithAllBlankFieldValues(Set<Schema.SObjectField> fields)
-	{
+	protected virtual List<SObject> getRecordsWithAllBlankFieldValues(Set<Schema.SObjectField> fields) {
 		List<SObject> result = new List<SObject>();
-		for (SObject record : getRecords())
-		{
+		for (SObject record : getRecords()) {
 			Boolean allBlank = true;
-			for (SObjectField field : fields)
-			{
-				if (String.isNotBlank((String) record.get(field)))
-				{
+			for (SObjectField field : fields) {
+				if (String.isNotBlank((String) record.get(field))) {
 					allBlank = false;
 					break;
 				}
 			}
-			if (allBlank) result.add(record);
+			if (allBlank)
+				result.add(record);
 		}
 		return result;
 	}
@@ -295,11 +256,8 @@ public virtual class fflib_SObjects
 	 *
 	 * @return A list with only the SObjects where the given field value is not null or ''
 	 */
-	protected virtual List<SObject> getRecordsWithNotBlankFieldValues(Schema.SObjectField field)
-	{
-		return getRecordsWithNotBlankFieldValues(
-				new Set<Schema.SObjectField> {field}
-		);
+	protected virtual List<SObject> getRecordsWithNotBlankFieldValues(Schema.SObjectField field) {
+		return getRecordsWithNotBlankFieldValues(new Set<Schema.SObjectField>{ field });
 	}
 
 	/**
@@ -307,15 +265,11 @@ public virtual class fflib_SObjects
 	 *
 	 * @return A list with only the SObjects where the at least one given field value not null or ''
 	 */
-	protected virtual List<SObject> getRecordsWithNotBlankFieldValues(Set<Schema.SObjectField> fields)
-	{
+	protected virtual List<SObject> getRecordsWithNotBlankFieldValues(Set<Schema.SObjectField> fields) {
 		List<SObject> result = new List<SObject>();
-		for (SObject record : getRecords())
-		{
-			for (SObjectField field : fields)
-			{
-				if (String.isNotBlank((String) record.get(field)))
-				{
+		for (SObject record : getRecords()) {
+			for (SObjectField field : fields) {
+				if (String.isNotBlank((String) record.get(field))) {
 					result.add(record);
 					break;
 				}
@@ -329,21 +283,18 @@ public virtual class fflib_SObjects
 	 *
 	 * @return A list with only the SObjects where all given field values are not null or ''
 	 */
-	protected virtual List<SObject> getRecordsWithAllNotBlankFieldValues(Set<Schema.SObjectField> fields)
-	{
+	protected virtual List<SObject> getRecordsWithAllNotBlankFieldValues(Set<Schema.SObjectField> fields) {
 		List<SObject> result = new List<SObject>();
-		for (SObject record : getRecords())
-		{
+		for (SObject record : getRecords()) {
 			Boolean allNonBlank = true;
-			for (SObjectField field : fields)
-			{
-				if (String.isBlank((String) record.get(field)))
-				{
+			for (SObjectField field : fields) {
+				if (String.isBlank((String) record.get(field))) {
 					allNonBlank = false;
 					break;
 				}
 			}
-			if (allNonBlank) result.add(record);
+			if (allNonBlank)
+				result.add(record);
 		}
 		return result;
 	}
@@ -354,10 +305,8 @@ public virtual class fflib_SObjects
 	 * @param field The reference to the SObjectField to be modified
 	 * @param value The value to store in the given SObjectField
 	 */
-	protected virtual void setFieldValue(Schema.SObjectField field, Object value)
-	{
-		for (SObject record : getRecords())
-		{
+	protected virtual void setFieldValue(Schema.SObjectField field, Object value) {
+		for (SObject record : getRecords()) {
 			record.put(field, value);
 		}
 	}
@@ -368,36 +317,32 @@ public virtual class fflib_SObjects
 	 * @param values Map of values to store by the fieldToCheck fields value
 	 */
 	protected virtual void setFieldValueByMap(
-			Schema.SObjectField fieldToCheck,
-			Schema.SObjectField fieldToUpdate,
-			Map<Object, Object> values)
-	{
-		for (SObject record : getRecords())
-		{
+		Schema.SObjectField fieldToCheck,
+		Schema.SObjectField fieldToUpdate,
+		Map<Object, Object> values
+	) {
+		for (SObject record : getRecords()) {
 			Object keyValue = record.get(fieldToCheck);
-			if (values?.containsKey(keyValue))
-			{
+			if (values?.containsKey(keyValue)) {
 				record.put(fieldToUpdate, values.get(keyValue));
 			}
 		}
 	}
 
 	/**
-     * Ensures logging of errors in the Domain context for later assertions in tests
-     **/
-	public virtual class ErrorFactory
-	{
+	 * Ensures logging of errors in the Domain context for later assertions in tests
+	 **/
+	public virtual class ErrorFactory {
 		private List<Error> errorList = new List<Error>();
 
-		private ErrorFactory() {	}
+		private ErrorFactory() {
+		}
 
-		public String error(String message, SObject record)
-		{
+		public String error(String message, SObject record) {
 			return error(null, message, record);
 		}
 
-		public String error(fflib_SObjects domain, String message, SObject record)
-		{
+		public String error(fflib_SObjects domain, String message, SObject record) {
 			ObjectError objectError = new ObjectError();
 			objectError.domain = domain;
 			objectError.message = message;
@@ -406,13 +351,11 @@ public virtual class fflib_SObjects
 			return message;
 		}
 
-		public String error(String message, SObject record, SObjectField field)
-		{
+		public String error(String message, SObject record, SObjectField field) {
 			return error(null, message, record, field);
 		}
 
-		public String error(fflib_ISObjects domain, String message, SObject record, SObjectField field)
-		{
+		public String error(fflib_ISObjects domain, String message, SObject record, SObjectField field) {
 			FieldError fieldError = new FieldError();
 			fieldError.domain = domain;
 			fieldError.message = message;
@@ -422,13 +365,11 @@ public virtual class fflib_SObjects
 			return message;
 		}
 
-		public List<Error> getAll()
-		{
+		public List<Error> getAll() {
 			return errorList.clone();
 		}
 
-		public void clearAll()
-		{
+		public void clearAll() {
 			errorList.clear();
 		}
 	}
@@ -436,28 +377,27 @@ public virtual class fflib_SObjects
 	/**
 	 * Ensures logging of errors in the Domain context for later assertions in tests
 	 **/
-	public virtual class FieldError extends ObjectError
-	{
+	public virtual class FieldError extends ObjectError {
 		public SObjectField field;
 
-		public FieldError()	{ }
+		public FieldError() {
+		}
 	}
 
 	/**
 	 * Ensures logging of errors in the Domain context for later assertions in tests
 	 **/
-	public virtual class ObjectError extends Error
-	{
+	public virtual class ObjectError extends Error {
 		public SObject record;
 
-		public ObjectError() { }
+		public ObjectError() {
+		}
 	}
 
 	/**
 	 * Ensures logging of errors in the Domain context for later assertions in tests
 	 **/
-	public abstract class Error
-	{
+	public abstract class Error {
 		public String message;
 		public fflib_ISObjects domain;
 	}
